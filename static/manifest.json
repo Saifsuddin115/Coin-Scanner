@@ -1,16 +1,15 @@
 {
-  "id": "/Trade-Checker/",
   "name": "Trade Checker",
   "short_name": "TC",
-  "start_url": "/Trade-Checker/",
-  "scope": "/Trade-Checker/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0e17",
   "theme_color": "#0a0e17",
   "icons": [
     {
-      "src": "/Trade-Checker/TC.png",
-      "sizes": "1254x1254",
+      "src": "/static/tc.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     }
