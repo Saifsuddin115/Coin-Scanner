@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">    
+    <head>
+
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="TC.png">
+<link rel="apple-touch-icon" href="TC.png">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+        <style>
+          
+
+
+
+      #instructions {
+    max-width: 480px;
+    margin: 40px auto 30px;
+    padding: 22px 24px;
+    border-top: 1px solid var(--surface-border);
+    border-bottom: 1px solid var(--surface-border);
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    transform: translateY(-65px);
+} 
+
+.eyebrow {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 12px;
+}
+:root {
+    --bg: #0a0e17;          /* ink navy, near-black */
+    --surface: #131a2c;     /* card background */
+    --surface-border: #2a3349; /* hairline border on cards */
+    --gold: #c9a227;        /* brass/champagne, less saturated than goldenrod */
+    --gold-bright: #e0c158; /* hover state */
+    --text: #ece7da;        /* warm ivory, NOT grey */
+    --text-muted: #8891a8;  /* slate, for secondary text */
+    --valid: #3f8f6f;       /* muted jade, not neon green */
+    --invalid: #804439;     /* oxblood, not neon red */
+    --scrim-gold: rgba(40, 32, 10, 0.93);   /* warm gold-tinted dark scrim, for valid */
+--scrim-error: rgba(8, 10, 16, 0.97); /* muted oxblood scrim, toned way down from #2a0a0a */
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    
+}
+
+button {
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--gold);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 14px;
+    width: 120px;
+    margin: 8px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.3s ease, box-shadow 0.5s ease;
+    align-self: center;
+}
+
+button:hover {
+    transform: translateY(-5px);
+    color: var(--gold-bright);
+    box-shadow: 0 0 14px rgba(185, 163, 108, 0.35);
+}
+
+.border-draw {
+    position: absolute;
+    inset: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    pointer-events: none;
+}
+
+.border-draw path {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 2;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+button:hover .border-draw path {
+    stroke-dashoffset: 0;
+}
+
+h2,h3,h4,h5,h6,h7 {
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--gold);
+     font-family: 'Playfair Display', serif;
+}
+#question1, #question2, #question3, #question4, #tradeButtons, #confluences {
+    padding: 20px;
+    font-family: 'Playfair Display', serif;
+    color: var(--gold);
+    width: min(590px, 90vw);
+    margin: 15px auto;
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    text-align: center;
+    transform: translateY(-100px);
+}
+
+
+#question1.fade-out, #question2.fade-out, #question3.fade-out, #question4.fade-out, #tradeButtons.fade-out, #confluences.fade-out {
+    opacity: 0;
+    transform: translateY(-100px); /* base -100px + additional 0px drift */
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.next-btn {
+    display: block;
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.next-btn:Hover{
+    transform: translateY(-5px);
+}
+
+button:active {
+
+    transform: scale(0.97);
+
+}
+
+#verdictOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 10;
+    animation: fadeIn 0.3s ease;
+}
+
+#verdictValid {
+    color: var(--gold-bright);
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(201, 162, 39, 0.18);
+    padding: 56px 40px;   /* was 40px — more top/bottom space */
+    border-radius: 20px;
+    text-align: center;
+    font-family: inherit;
+    max-width: 480px;
+    width: min(480px, 90vw);
+    min-height: 320px;    /* optional: guarantees a floor even with short text */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#verdictValid .verdict-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+#verdictValid .verdict-body {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+#verdictFomo, #verdictLimit, #verdictInvalid {
+    color: #c97a6c;
+    background: var(--surface);
+    border: 1px solid var(--invalid);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(156, 74, 60, 0.18);
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    font-family: inherit;
+    
+}
+
+
+
+#resetButton{
+    display: block;
+    margin: 0 auto;
+    transform: translateY(-80px);
+}
+#resetButton:hover{
+    transform: translateY(-87px);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+
+}
+
+
+@keyframes fadeIn {
+
+from {
+    opacity: 0;
+}
+
+to {
+    opacity: 1;
+}
+
+}
+
+
+
+.confluence-list {
+    text-align: left;
+    max-width: 480px;
+    margin: 16px auto 0;
+  
+}
+
+.confluence-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 6px;
+    
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+     border-bottom: 1px solid rgba(201, 162, 39, 0.35);
+}
+
+.confluence-row:last-of-type {
+    border-bottom: none;
+}
+
+.confluence-row:hover {
+    background: rgba(185, 163, 108, 0.06);
+}
+
+.confluence-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.confluence-name input[type="checkbox"] {
+    accent-color: var(--gold);
+    width: 16px;
+    height: 16px;
+}
+
+.confluence-weight {
+    font-family: monospace;
+    font-size: 13px;
+    color: var(--gold);
+}
+.confluence-row:Hover{
+    transform:translateY(-3px);
+    background: rgba(201, 162, 39, 0.06);
+    box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.15);
+
+}
+
+#result, #indecision, #trades,#Setup, #FOMO {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+#result.show, #indecision.show, #trades.show, #Setup.show, #FOMO.show {
+    opacity: 1;
+}
+
+dialog#confirmModal {
+    color: var(--gold-bright);
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(201, 162, 39, 0.18);
+    padding: 60px;
+    border-radius: 20px;
+    text-align: center;
+    font-family: inherit;
+    max-width: 500px;
+    font-size: 16px;
+}
+dialog#confirmModal[open] {
+    animation: fadeIn 0.3s ease;
+}
+dialog#confirmModal::backdrop {
+    background: var(--scrim-error);
+}
+dialog#confirmModal h2 {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    font-family: inherit;
+}
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+
+    width: 250px;
+    height: 100vh;
+
+    background: var(--surface);
+    border-right: 1px solid var(--surface-border);
+
+    padding-top: 80px;
+    z-index: 1000;
+
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateX(0);
+}
+
+#sidebar.open {
+    transform: translateX(260px);
+}
+
+
+#menuBtn{
+   align-self:center;
+   
+
+    width:60px;
+    height:60px;
+
+    font-size:24px;
+
+    z-index:1001;
+}
+#sidebar button{
+
+    display:block;
+
+    width:60%;
+
+    margin:7px auto;
+
+}
+#backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+
+    z-index: 999;
+}
+
+#backdrop.open {
+    opacity: 1;
+    pointer-events: all;
+}
+.modal-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+
+        </style>
+
+
+
+
+    </head>
+
+<button id="menuBtn">☰</button>
+
+
+    <body>
+<div id="backdrop"></div>
+
+<div id="instructions">
+    <span class="eyebrow">THE RULE</span>
+    This is a step-by-step process to become profitable. No emotions, simply follow this and you will become profitable inshallah.
+</div>
+
+
+
+<nav id="sidebar">
+    <button onclick="location.href='/rules'">Trade Checker</button>
+
+    <button onclick="location.href='/calendar'">
+        Trade Journal
+    </button>
+
+    <button onclick="location.href='/'">
+        Coin scanner
+    </button>
+      
+
+</nav>
+
+
+<br>
+<br>
+<form>
+
+
+
+
+
+
+<div id="question1">
+
+
+
+<h2>TREND</h2>
+
+<p>
+Are we making higher highs or lower lows?
+</p>
+
+<button type="button" onclick="checktrend('Yes')">
+Higher Highs
+<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg>
+</button>
+
+<button type="button" onclick="checktrend('No')">
+Lower Lows
+<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg>
+</button>
+<p id="result"></p>
+<button type="button" id="next1" class="next-btn" style="display:none" onclick="goToNext('question1', 'question2')">Next<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+</div>
+
+
+<div id="question2" style="display:none">
+    <h3>INDECISION</h3>
+Is there a high TF DOJI, indecision, or a bearish engulfing?
+<p> 
+<button type="button" onclick="checkreversal('Yes')">Yes<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<button type="button" onclick="checkreversal('No')">No<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<p id="indecision"></p>
+<button type="button" id="next2" class="next-btn" style="display:none" onclick="goToNext('question2', 'question3')">Next<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+</div>
+
+<div id="question3" style="display:none">
+    <h4>Setup</h4>
+ Is there a better setup with a stronger trend RIGHT NOW or any that is FORMING?
+<p> 
+<button type="button" onclick="checksetup('Yes')">Yes<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<button type="button" onclick="checksetup('No')">No<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<p id="Setup"></p>
+<button type="button" id="next3" class="next-btn" style="display:none" onclick="goToNext('question3', 'question4')">Next<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+</div>
+
+
+
+
+<div id="question4" style="display:none">
+    <h5>FOMO</h5>
+Is this a FOMO trade?
+<p>
+<button type="button" onclick="FOMO('FOMO')">Yes<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<button type="button" onclick="FOMO('Not FOMO')">No<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<br>
+<p id="FOMO"></p>
+</p>
+</div>
+
+
+
+
+    <div id="tradeButtons" style="display:none">
+        <h6>DAILY TRADES</h6>
+<button type="button" onclick="trades('0')">0<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+
+<button type="button" onclick="trades('1')">1<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+
+<button type="button" onclick="trades('2')">2<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+
+<button type="button" onclick="trades('3')">3<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+
+<button type="button" id="hide" class="next-btn" style="display:none" onclick="goToNext('tradeButtons', 'confluences')">Next<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+</div>
+<p id="trades"></p>
+
+
+
+<div id="confluences" style="display:none">
+<h7>ENTER CONFLUENCES:</h7>
+<div class="confluence-list">
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="DailyOB" value="9"> Daily OB</span>
+    <span class="confluence-weight">9.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="DailyFVG" value="7"> Daily FVG</span>
+    <span class="confluence-weight">7.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="4HOB" value="8"> 4H OB</span>
+    <span class="confluence-weight">8.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="4HFVG" value="6"> 4H FVG</span>
+    <span class="confluence-weight">6.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="1HOB" value="7"> 1H OB</span>
+    <span class="confluence-weight">7.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="1HFVG" value="5.0"> 1H FVG</span>
+    <span class="confluence-weight">5.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="15MOB" value="6"> 15M OB</span>
+    <span class="confluence-weight">6.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="15MFVG" value="4"> 15M FVG</span>
+    <span class="confluence-weight">4.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="5MOB" value="5"> 5M OB</span>
+    <span class="confluence-weight">5.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="Hourly Liq sweep" value="4"> Hourly Liq sweep</span>
+    <span class="confluence-weight">4.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="15M Liq sweep" value="4"> 15M Liq sweep</span>
+    <span class="confluence-weight">4.0</span>
+  </label>
+</div>
+<p>
+<button type="button" onclick="submitForm()">Submit<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+</p>
+</div>
+<dialog id="confirmModal">
+    <h2>Take a deep breath, wait 5 seconds and ask yourself:
+        <br>
+        <br>
+         -Is this an A+ setup?
+         <br>
+         <br>
+         -Am i taking this trade because i want to be a part of it or because it's actually valid?
+         <br>
+         <br>
+         -If you lose this trade what do you think the reason would be? 
+         <br>
+         <br>
+         Remember, it is more important to protect you're capital then to increse you're capital.
+    
+    </h2>
+    <button type="button" id="modalYes" class="modal-btn">Yes</button>
+    <button type="button" id="modalNo" class="modal-btn">No</button>
+</dialog>
+
+<div id="verdictOverlay">
+<div id="verdictValid" style="display:none">
+    <div class="verdict-title">VALID SETUP ✅</div>
+    <div class="verdict-body">
+        Rules you are REQUIRED to follow:<br><br>
+        - Do NOT move SL or TP<br>
+        - If there is a DOJI after a break of a high then you are REQUIRED to sell<br><br>
+        You are not using the TC, the TC is using you. If you do not follow these rules, you'll ask why you didn't follow them.
+    </div>
+</div>
+<div id="verdictFomo" style="display:none">⚠ SETUP INVALID<br><br>FOMO detected;</div>
+<div id="verdictLimit" style="display:none">⚠  SETUP INVALID<br><br>Daily trade limit reached;</div>
+<div id="verdictInvalid" style="display:none">⚠ SETUP INVALID<br><br>Not enough confluences;</div>
+
+    <button onclick="location.reload()">
+        New Trade
+        <svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg>
+    </button>
+</div>
+
+<br>
+<br>
+<br>
+<button type="button" id="resetButton" style="display:none" onclick="location.reload()">
+    Reset<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg>
+</button>
+</form>
+
+
+
+
+
+
+    </body>
+</html>
+
+<script>
+    
+
+        document.addEventListener('DOMContentLoaded', () => {
+    delayButtons('question1');
+});
+
+const menuBtn = document.getElementById('menuBtn');
+const sidebar = document.getElementById('sidebar');
+const backdrop = document.getElementById('backdrop');
+
+function openSidebar() {
+    sidebar.classList.add('open');
+    backdrop.classList.add('open');
+}
+
+function closeSidebar() {
+    sidebar.classList.remove('open');
+    backdrop.classList.remove('open');
+}
+
+menuBtn.addEventListener('click', () => {
+    if (sidebar.classList.contains('open')) {
+        closeSidebar();
+    } else {
+        openSidebar();
+    }
+});
+
+backdrop.addEventListener('click', closeSidebar);
+
+// optional: ESC key closes it
+document.addEventListener('keydown', (e) => {
+    if (e.key === "Escape") {
+        closeSidebar();
+    }
+});
+
+function disableButtons(containerId)
+{
+    let buttons = document.querySelectorAll(`#${containerId} button:not(.next-btn)`)
+
+    buttons.forEach(button =>
+    {
+        button.disabled = true;
+    });
+}
+
+function disableCheckboxes(containerId)
+{
+    let boxes = document.querySelectorAll(`#${containerId} input`);
+
+    boxes.forEach(box =>
+    {
+        box.disabled = true;
+    });
+}
+
+function revealText(element) {
+    element.classList.add('show');
+    element.style.maxHeight = element.scrollHeight + 'px';
+}
+// Set your own delay (in ms) per card here. 1000ms = 1 second.
+const cardDelays = {
+    question1: 2000, // 2s
+    question2: 10000,  // 10s
+    question3: 7000,  // 7s
+    question4: 2000,  // 2s
+   
+};
+
+function delayButtons(containerId, ms) {
+    if (ms === undefined) ms = cardDelays[containerId] ?? 1000; // default to 1s if not specified
+
+    const container = document.getElementById(containerId);
+    const buttons = container.querySelectorAll('button:not(.next-btn)');
+
+    buttons.forEach(btn => {
+        btn.style.visibility = 'hidden'; // keeps layout, just invisible
+        btn.disabled = true;
+    });
+
+    setTimeout(() => {
+        buttons.forEach(btn => {
+            btn.style.visibility = 'visible';
+            btn.disabled = false;
+        });
+    }, ms);
+}
+function goToNext(currentId, nextId, onSwap) {
+    let current = document.getElementById(currentId);
+    let next = document.getElementById(nextId);
+
+    current.classList.add('fade-out');
+
+    setTimeout(function() {
+        current.style.display = 'none';
+        current.classList.remove('fade-out');
+
+        if (typeof onSwap === 'function') {
+            onSwap();
+        }
+
+        next.style.transition = 'none';
+        next.style.opacity = '0';
+        next.style.transform = 'translateY(-100px)';
+        next.style.display = 'block';
+
+        next.offsetHeight;
+
+        next.style.transition = 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+        next.style.opacity = '1';
+        next.style.transform = 'translateY(-100px)';
+
+        delayButtons(nextId); // 👈 new line — locks the new card's buttons using its configured delay
+    }, 350);
+}
+
+
+//Starting off our choices
+
+function checktrend(choice) {
+    if (choice === 'Yes') {
+        document.getElementById('result').innerHTML = 'Great to take a trade off of it, aim for the next tp if daily looks strong, otherwise aim for the body of the candle at high.'
+       
+revealText(document.getElementById('result'));
+    } else {
+        
+        document.getElementById('result').innerHTML = 'Target HAS to be at the closest lower wick or at the body of the next candle after the closest high.';
+revealText(document.getElementById('result'));
+    }
+    document.getElementById('next1').style.display = 'block';
+      disableButtons("question1")
+      document.getElementById('resetButton').style.display= 'block';
+}
+function checkreversal(choice) {
+    if (choice === 'Yes') {
+        document.getElementById('indecision').innerHTML = 'If its a daily find the area of confluences that are the lowest, 4hr dojis dont trade, hourly dojis you can catch a retrace if its a bull trend otherwise skip as well. Bearish engulfing do not trade.';
+        revealText(document.getElementById('indecision'));
+    } else {
+        document.getElementById('indecision').innerHTML = 'Proceed; A reminder to mark out everything you come across for mental and visual clarity.';
+        revealText(document.getElementById('indecision'));
+    }
+      document.getElementById('next2').style.display = 'block';
+     disableButtons("question2");
+}
+function checksetup(choice) {
+    if (choice === 'Yes') {
+        location.reload();
+    } else {
+        document.getElementById('Setup').innerHTML = 'Proceed; A reminder to mark out everything you come across for mental and visual clarity, again make sure you look at trend and do not convince yourself to take any of these trades';
+        revealText(document.getElementById('Setup'));
+    }
+      document.getElementById('next3').style.display = 'block';
+      disableButtons("question3");
+}
+function FOMO(choices) {
+    if (choices === 'FOMO') {
+        document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
+        document.getElementById('verdictFomo').style.display = 'block';
+        document.getElementById('verdictOverlay').style.display = 'flex';
+        setTimeout(function() {
+            disableButtons("question4");
+        }, 300);
+        return;
+    } else {
+        goToNext('question4', 'tradeButtons', function() {
+            disableButtons("question4");
+        });
+    }
+}
+
+function trades(numbers){
+    if (numbers === '0' || numbers === '1' || numbers === '2') {
+        document.getElementById('hide').style.display = 'block';
+        disableButtons("tradeButtons");
+    } else if (numbers === '3') {
+        document.getElementById('verdictLimit').style.display = 'block';
+        document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
+        document.getElementById('verdictOverlay').style.display = 'flex';
+        setTimeout(function() {
+            disableButtons("tradeButtons");
+        }, 300);
+    }
+}
+function submitForm() {
+    var checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+    var totalValue = 0;
+    checkboxes.forEach(function(checkbox) {
+        totalValue += parseFloat(checkbox.value);
+    });
+
+    if (totalValue > 12) {
+        document.getElementById('confirmModal').showModal();
+
+        // disable both buttons while the modal is up
+        const yesBtn = document.getElementById('modalYes');
+        const noBtn = document.getElementById('modalNo');
+        yesBtn.disabled = true;
+        noBtn.disabled = true;
+
+        setTimeout(() => {
+            yesBtn.disabled = false;
+            noBtn.disabled = false;
+        }, 4000); // 4 seconds
+    } else {
+        document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
+        document.getElementById('verdictInvalid').style.display = 'block';
+        document.getElementById('verdictOverlay').style.display = 'flex';
+        disableCheckboxes("confluences");
+    }
+}
+
+document.getElementById('modalYes').addEventListener('click', function() {
+    // save confluences so calendar can read them
+    const checked = document.querySelectorAll('#confluences input[type="checkbox"]:checked');
+    const names = [];
+    checked.forEach(cb => {
+        const nameSpan = cb.closest('.confluence-name');
+        if (nameSpan) names.push(nameSpan.textContent.trim());
+    });
+    localStorage.setItem('lastTradeConfluences', JSON.stringify(names));
+
+    document.getElementById('confirmModal').close();
+    document.getElementById('verdictOverlay').style.background = 'var(--scrim-gold)';
+    document.getElementById('verdictValid').style.display = 'block';
+    document.getElementById('verdictOverlay').style.display = 'flex';
+    disableCheckboxes("confluences");
+});
+
+document.getElementById('modalNo').addEventListener('click', function() {
+    document.getElementById('confirmModal').close();
+
+
+    let checkboxes = document.querySelectorAll('#confluences input[type="checkbox"]');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.checked = false;
+    });
+});
+
+
+
+
+</script>

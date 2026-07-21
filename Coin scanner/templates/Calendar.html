@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">    
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        
+        <style>
+          
+/* ── Variables ───────────────────────────────────────────── */
+:root {
+    --bg: #0a0e17;
+    --surface: #131a2c;
+    --surface-border: #2a3349;
+    --gold: #c9a227;
+    --gold-bright: #e0c158;
+    --text: #ece7da;
+    --text-muted: #8891a8;
+    --valid: #3f8f6f;
+    --invalid: #804439;
+    --scrim-gold: rgba(40, 32, 10, 0.93);
+    --scrim-error: rgba(8, 10, 16, 0.97);
+}
+
+/* ── Base ────────────────────────────────────────────────── */
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 0 8px;
+    box-sizing: border-box;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+button {
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--gold);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 14px;
+    width: 120px;
+    margin: 8px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.3s ease, box-shadow 0.5s ease;
+    align-self: center;
+}
+
+button:hover {
+    transform: translateY(-5px);
+    color: var(--gold-bright);
+    box-shadow: 0 0 14px rgba(185, 163, 108, 0.35);
+}
+
+.border-draw {
+    position: absolute;
+    inset: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    pointer-events: none;
+}
+
+.border-draw path {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 2;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+button:hover .border-draw path {
+    stroke-dashoffset: 0;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 250px;
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--surface-border);
+    padding-top: 80px;
+    z-index: 1000;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateX(0);
+}
+
+#sidebar.open {
+    transform: translateX(260px);
+}
+
+#menuBtn {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    z-index: 1001;
+    align-self: center;
+}
+
+#sidebar button {
+    display: block;
+    width: 60%;
+    margin: 7px auto;
+}
+
+#backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 999;
+}
+
+#backdrop.open {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ── Heading ─────────────────────────────────────────────── */
+h1 {
+    max-width: 480px;
+    margin: 10px auto;
+    padding: 22px 24px;
+    border-top: 1px solid var(--surface-border);
+    border-bottom: 1px solid var(--surface-border);
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 25px;
+    line-height: 1.6;
+    color: var(--gold);
+}
+
+/* ── Month header ────────────────────────────────────────── */
+#monthLabel {
+    text-align: center;
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin: 10px auto 5px;
+    letter-spacing: 2px;
+}
+
+#monthlyPnl {
+    text-align: center;
+    margin: 0 auto 14px;
+    font-family: 'Playfair Display', serif;
+    letter-spacing: 1px;
+}
+
+.monthly-label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 4px;
+}
+
+.monthly-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    
+}
+
+/* ── Calendar grid ───────────────────────────────────────── */
+#weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    max-width: 1400px;
+    margin: 10px auto 6px;
+    text-align: center;
+    color: var(--gold);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    opacity: 0.8;
+}
+
+#calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ── Day cells ───────────────────────────────────────────── */
+.day {
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 10px;
+    min-height: 100px;
+    padding: 10px;
+    color: var(--text);
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.day:hover {
+    border-color: var(--gold);
+    transform: translateY(-4px);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.empty {
+    background: transparent;
+    border: none;
+    cursor: default;
+}
+
+.day.profit {
+    border-color: #2c77da;
+    background: #0b3a77cc;
+}
+
+.day.loss {
+    border-color: #3a3a3a;
+    background: rgba(30, 30, 30, 0.6);
+}
+
+.day-number {
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    color: white;
+    font-weight: 500;
+}
+
+.day-pnl {
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    margin-top: 8px;
+}
+
+.pnl-positive { color: #2b68c4; }
+.pnl-negative { color: #5a5a5a; }
+
+.day-trades {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* ── Modal ───────────────────────────────────────────────── */
+dialog#dayModal {
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    border-radius: 16px;
+    padding: 32px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    max-width: 380px;
+    width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+dialog#dayModal[open] {
+    animation: fadeIn 0.3s ease;
+}
+
+dialog#dayModal::backdrop {
+    background: rgba(8, 10, 16, 0.92);
+    backdrop-filter: blur(4px);
+}
+
+dialog#dayModal h3 {
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    margin: 0 0 20px 0;
+    letter-spacing: 1px;
+}
+
+dialog#dayModal label {
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+dialog#dayModal input,
+dialog#dayModal textarea {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    background: var(--bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    padding: 10px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+dialog#dayModal input:focus,
+dialog#dayModal textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.modal-buttons button {
+    width: auto;
+    padding: 10px 20px;
+    margin: 0;
+}
+
+/* ── Trade rows ──────────────────────────────────────────── */
+.trade-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.trade-row input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+.trade-row input:focus {
+    outline: none;
+    border-color: var(--gold);
+}
+
+.remove-row {
+    background: transparent;
+    border: none;
+    color: var(--invalid);
+    cursor: pointer;
+    font-size: 16px;
+    width: auto;
+    padding: 4px 8px;
+    margin: 0;
+    min-width: unset;
+}
+
+.remove-row:hover {
+    transform: none;
+    box-shadow: none;
+    color: #e07060;
+}
+
+/* ── Confluence tags ─────────────────────────────────────── */
+.confluence-tag {
+    display: inline-block;
+    background: rgba(201, 162, 39, 0.1);
+    border: 1px solid rgba(201, 162, 39, 0.3);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 12px;
+    color: var(--gold);
+    margin: 2px;
+}
+
+.tag-remove {
+    cursor: pointer;
+    margin-left: 4px;
+    opacity: 0.6;
+    font-size: 10px;
+}
+
+.tag-remove:hover {
+    opacity: 1;
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    body { padding: 0 6px; }
+
+    h1 {
+        font-size: 18px;
+        padding: 14px 16px;
+        margin: 6px auto;
+    }
+
+    #monthLabel { font-size: 15px; }
+    .monthly-value { font-size: 18px; }
+
+    #weekdays {
+        font-size: 9px;
+        letter-spacing: 0px;
+        margin: 6px auto 4px;
+    }
+
+    #calendar { gap: 3px; }
+
+    .day {
+        min-height: 55px;
+        padding: 5px;
+        border-radius: 6px;
+    }
+
+    .day:hover { transform: none; }
+
+    .day-number { font-size: 10px; }
+    .day-pnl { font-size: 10px; margin-top: 2px; }
+    .day-trades { font-size: 8px; }
+
+    dialog#dayModal input,
+    dialog#dayModal textarea { font-size: 16px; }
+
+    .remove-row { padding: 8px 12px; font-size: 18px; }
+
+    .modal-buttons button { padding: 14px 20px; font-size: 14px; }
+
+    #addTradeRow {
+        padding: 12px 16px !important;
+        font-size: 13px !important;
+    }
+
+    button:hover { transform: none; }
+}
+
+/* ── Desktop only ────────────────────────────────────────── */
+@media (min-width: 601px) {
+    h1 { transform: translateY(-50px); }
+}
+
+
+</style>
+
+</head>
+
+<button id="menuBtn">☰</button>
+
+<body>
+
+<h1>Trade Journal</h1>
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+    <button onclick="location.href='/rules'">Trade Checker</button>
+
+    <button onclick="location.href='/calendar'">
+        Trade Journal
+    </button>
+
+    <button onclick="location.href='/'">
+        Coin scanner
+    </button>
+      
+
+</nav>
+
+
+
+<form>
+
+  <div id="monthLabel"></div>  
+
+<div id="monthlyPnl"></div>
+
+<div id="weekdays">
+    <div>Sun</div>
+    <div>Mon</div>
+    <div>Tue</div>
+    <div>Wed</div>
+    <div>Thu</div>
+    <div>Fri</div>
+    <div>Sat</div>
+</div>
+
+
+<div id="calendar">
+</div>
+
+
+<dialog id="dayModal">
+    <h3 id="modalTitle"></h3>
+
+    <label style="font-size:12px; letter-spacing:1px; color:var(--text-muted); text-transform:uppercase;">
+        Trades
+    </label>
+
+    <div id="tradeRows" style="margin-top: 8px;"></div>
+
+    <button type="button" id="addTradeRow" style="width:auto; padding:8px 16px; margin: 8px 0 16px 0; font-size:12px;">
+        + Add Trade
+    </button>
+
+    <div id="dailyTotal" style="font-size:15px; font-weight:bold; margin-bottom:16px; color:var(--gold);"></div>
+
+ <label style="font-size:12px; letter-spacing:1px; color:var(--text-muted); text-transform:uppercase;">
+    Confluences
+</label>
+<div id="confluenceDisplay" style="margin-top: 8px; margin-bottom: 8px;"></div>
+<div style="display:flex; gap:6px; margin-bottom:16px;">
+    <input type="text" id="confluenceInput" placeholder="Add confluence..." 
+        style="flex:1; background:var(--bg); border:1px solid var(--surface-border); border-radius:8px; padding:8px 10px; color:var(--text); font-family:'Inter',sans-serif; font-size:13px;">
+    <button type="button" onclick="addConfluenceTag()" 
+        style="width:auto; padding:8px 14px; margin:0; font-size:12px;">+ Add</button>
+</div>
+
+    <label style="font-size:12px; letter-spacing:1px; color:var(--text-muted); text-transform:uppercase;">
+        Notes
+    </label>
+    <textarea id="inputNotes" rows="4" placeholder="What happened today..." style="display:block; width:100%; margin-top:6px; background:var(--bg); border:1px solid var(--surface-border); border-radius:8px; padding:10px; color:var(--text); font-family:'Inter',sans-serif; font-size:14px; box-sizing:border-box;"></textarea>
+
+    <br>
+    <div class="modal-buttons">
+        <button type="button" id="saveDay">Save</button>
+        <button type="button" id="closeDay">Cancel</button>
+    </div>
+</dialog>
+
+
+
+
+
+</form>
+
+
+</body>
+</html>
+
+<script>
+// ── Elements ──────────────────────────────────────────────
+
+const menuBtn  = document.getElementById('menuBtn');
+const sidebar  = document.getElementById('sidebar');
+const backdrop = document.getElementById('backdrop');
+const modal    = document.getElementById('dayModal');
+const calendar = document.getElementById('calendar');
+
+// ── Sidebar ───────────────────────────────────────────────
+function openSidebar()  { sidebar.classList.add('open');    backdrop.classList.add('open');    }
+function closeSidebar() { sidebar.classList.remove('open'); backdrop.classList.remove('open'); }
+
+menuBtn.addEventListener('click', () => {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+});
+backdrop.addEventListener('click', closeSidebar);
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSidebar();
+});
+
+// ── Date setup ────────────────────────────────────────────
+const today       = new Date();
+const year        = today.getFullYear();
+const month       = today.getMonth();
+const daysInMonth = new Date(year, month + 1, 0).getDate();
+const firstDay    = new Date(year, month, 1).getDay();
+
+const monthNames = [
+    'January','February','March','April','May','June',
+    'July','August','September','October','November','December'
+];
+document.getElementById('monthLabel').textContent = `${monthNames[month]} ${year}`;
+
+// ── localStorage helpers ──────────────────────────────────
+function storageKey(day) { return `journal-${year}-${month}-${day}`; }
+
+function loadDay(day) {
+    const raw = localStorage.getItem(storageKey(day));
+    return raw ? JSON.parse(raw) : null;
+}
+function saveDay(day, data) {
+    localStorage.setItem(storageKey(day), JSON.stringify(data));
+}
+
+// ── Monthly P&L ───────────────────────────────────────────
+function updateMonthlyPnl() {
+    let total    = 0;
+    let hasTrades = false;
+
+    for (let d = 1; d <= daysInMonth; d++) {
+        const data = loadDay(d);
+        if (data && data.pnl !== null && data.pnl !== undefined) {
+            total += data.pnl;
+            hasTrades = true;
+        }
+    }
+
+    const el = document.getElementById('monthlyPnl');
+
+    if (!hasTrades) { el.innerHTML = ''; return; }
+
+    const sign = total > 0 ? '+' : '';
+    el.innerHTML = `
+        <span class="monthly-label">Monthly P&L</span>
+        <span class="monthly-value" style="color: ${total > 0 ?' #2c77da'  : '#4a4a4a'}">
+            ${sign}${total.toFixed(2)}%
+        </span>
+    `;
+}
+
+// ── Apply saved data to a day cell ────────────────────────
+function applyDayData(box, day) {
+    const data = loadDay(day);
+
+
+
+    box.classList.remove('profit', 'loss');
+    const existingPnl    = box.querySelector('.day-pnl');
+    const existingTrades = box.querySelector('.day-trades');
+    if (existingPnl)    existingPnl.remove();
+    if (existingTrades) existingTrades.remove();
+
+    if (!data) return;
+
+    if (data.pnl > 0) box.classList.add('profit');
+    if (data.pnl < 0) box.classList.add('loss');
+
+    if (data.pnl !== null && data.pnl !== undefined) {
+        const pnlEl = document.createElement('div');
+        pnlEl.classList.add('day-pnl');
+        pnlEl.classList.add(data.pnl > 0 ? 'pnl-positive' : 'pnl-negative');
+        pnlEl.textContent = (data.pnl > 0 ? '+' : '') + data.pnl + '%';
+        box.appendChild(pnlEl);
+    }
+
+    if (data.trades && data.trades.length > 0) {
+        const tradesEl = document.createElement('div');
+        tradesEl.classList.add('day-trades');
+        tradesEl.textContent = data.trades.length + ' trade' + (data.trades.length === 1 ? '' : 's');
+        box.appendChild(tradesEl);
+    }
+
+
+}
+
+// ── Confluences ───────────────────────────────────────────
+function loadConfluencesIntoModal(savedConfluences) {
+    const isToday = (activeDay === today.getDate());
+
+    let confluences = [];
+
+    if (savedConfluences && savedConfluences.length > 0) {
+        confluences = savedConfluences;
+    } else if (isToday) {
+        confluences = JSON.parse(localStorage.getItem('lastTradeConfluences') || '[]');
+    }
+
+    renderConfluenceTags(confluences);
+}
+function renderConfluenceTags(confluences) {
+    const el = document.getElementById('confluenceDisplay');
+    el.innerHTML = '';
+
+    if (confluences.length === 0) {
+        const none = document.createElement('span');
+        none.style.color    = 'var(--text-muted)';
+        none.style.fontSize = '13px';
+        none.textContent    = 'None — add below';
+        el.appendChild(none);
+    }
+
+    confluences.forEach(name => {
+        const tag = document.createElement('span');
+        tag.classList.add('confluence-tag');
+        tag.innerHTML = `${name} <span class="tag-remove">✕</span>`;
+        tag.querySelector('.tag-remove').addEventListener('click', () => {
+            tag.remove();
+            // if nothing left, show the "None" message
+            if (document.querySelectorAll('#confluenceDisplay .confluence-tag').length === 0) {
+                renderConfluenceTags([]);
+            }
+        });
+        el.appendChild(tag);
+    });
+}
+
+function addConfluenceTag() {
+    const input = document.getElementById('confluenceInput');
+    const val   = input.value.trim();
+    if (!val) return;
+
+    // remove the "None" placeholder if it's there
+    const none = document.querySelector('#confluenceDisplay span:not(.confluence-tag)');
+    if (none) none.remove();
+
+    const tag = document.createElement('span');
+    tag.classList.add('confluence-tag');
+    tag.innerHTML = `${val} <span class="tag-remove">✕</span>`;
+    tag.querySelector('.tag-remove').addEventListener('click', () => {
+        tag.remove();
+        if (document.querySelectorAll('#confluenceDisplay .confluence-tag').length === 0) {
+            renderConfluenceTags([]);
+        }
+    });
+    document.getElementById('confluenceDisplay').appendChild(tag);
+    input.value = '';
+}
+
+
+// ── Trade rows ────────────────────────────────────────────
+const MAX_TRADES = 3;
+
+function updateAddButton() {
+    const btn   = document.getElementById('addTradeRow');
+    const count = document.querySelectorAll('.trade-row').length;
+    btn.style.opacity       = count >= MAX_TRADES ? '0.4' : '1';
+    btn.style.pointerEvents = count >= MAX_TRADES ? 'none' : 'auto';
+}
+
+function addTradeRow(value = '') {
+    if (document.querySelectorAll('.trade-row').length >= MAX_TRADES) return;
+
+    const row = document.createElement('div');
+    row.classList.add('trade-row');
+
+    const input = document.createElement('input');
+    input.type        = 'number';
+    input.step        = '0.1';
+    input.placeholder = 'e.g. 4.5 or -2.3';
+    input.value       = value;
+    input.addEventListener('input', recalculateTotal);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type        = 'button';
+    removeBtn.textContent = '✕';
+    removeBtn.classList.add('remove-row');
+    removeBtn.addEventListener('click', () => {
+        row.remove();
+        recalculateTotal();
+        updateAddButton();
+    });
+
+    row.appendChild(input);
+    row.appendChild(removeBtn);
+    document.getElementById('tradeRows').appendChild(row);
+    updateAddButton();
+}
+
+function recalculateTotal() {
+    const inputs = document.querySelectorAll('.trade-row input');
+    let total = 0, count = 0;
+
+    inputs.forEach(input => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val)) { total += val; count++; }
+    });
+
+    const el = document.getElementById('dailyTotal');
+    if (count === 0) { el.textContent = ''; return; }
+
+    const sign = total > 0 ? '+' : '';
+    el.textContent = `Daily P&L: ${sign}${total.toFixed(2)}%`;
+  el.style.color = total > 0 ? 'var(--valid)' : total < 0 ? 'var(--invalid)' : 'var(--gold)';
+}
+
+// ── Build calendar ────────────────────────────────────────
+for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement('div');
+    empty.classList.add('day', 'empty');
+    calendar.appendChild(empty);
+}
+
+let activeDay = null;
+
+for (let day = 1; day <= daysInMonth; day++) {
+    const box = document.createElement('div');
+    box.classList.add('day');
+
+    const dayNumber = document.createElement('div');
+    dayNumber.textContent = day;
+    box.appendChild(dayNumber);
+
+    applyDayData(box, day);
+
+    box.addEventListener('click', () => {
+        activeDay = day;
+        const data = loadDay(day) || {};
+
+        document.getElementById('modalTitle').textContent =
+            `${monthNames[month]} ${day}, ${year}`;
+        document.getElementById('inputNotes').value = data.notes ?? '';
+        document.getElementById('dailyTotal').textContent = '';
+
+        loadConfluencesIntoModal(data.confluences || []);
+
+        document.getElementById('tradeRows').innerHTML = '';
+        if (data.trades && data.trades.length > 0) {
+            data.trades.forEach(t => addTradeRow(t));
+            recalculateTotal();
+        } else {
+            addTradeRow();
+        }
+        updateAddButton();
+
+        modal.showModal();
+    });
+
+    calendar.appendChild(box);
+}
+
+// run on page load
+updateMonthlyPnl();
+
+// ── Modal buttons ─────────────────────────────────────────
+document.getElementById('addTradeRow').addEventListener('click', () => {
+    addTradeRow();
+});
+
+document.getElementById('saveDay').addEventListener('click', () => {
+    const inputs = document.querySelectorAll('.trade-row input');
+    const trades = [];
+    inputs.forEach(input => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val)) trades.push(val);
+    });
+
+    const total = trades.reduce((sum, t) => sum + t, 0);
+    const notes = document.getElementById('inputNotes').value;
+
+    // grab whatever confluence tags are currently displayed and save them with the day
+    const tags = document.querySelectorAll('#confluenceDisplay .confluence-tag');
+    const confluences = Array.from(tags).map(tag => tag.textContent);
+
+    saveDay(activeDay, {
+        trades:      trades,
+        pnl:         trades.length > 0 ? parseFloat(total.toFixed(2)) : null,
+        notes:       notes,
+        confluences: confluences
+    });
+
+    const boxes = document.querySelectorAll('.day:not(.empty)');
+    applyDayData(boxes[activeDay - 1], activeDay);
+    updateMonthlyPnl();
+    modal.close();
+});
+
+document.getElementById('closeDay').addEventListener('click', () => {
+    modal.close();
+});
+</script>
