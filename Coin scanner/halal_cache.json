@@ -268,5 +268,50 @@
     "status": "halal",
     "confidence score": 0.9,
     "reason": "BOB functions as a Bitcoin-compatible hybrid Layer-2 network focused on smart contract utility and decentralized applications rather than lending, gambling, or speculative meme coin creation."
+  },
+  "AAVE": {
+    "status": "haram",
+    "confidence score": 1,
+    "reason": "The primary utility and core mechanism of Aave is decentralized lending and borrowing based on interest rates (yield), which constitutes Riba."
+  },
+  "AI": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "Gensyn is a decentralized protocol for distributed machine learning compute, which constitutes a productive utility rather than interest-based, gambling, or speculative finance."
+  },
+  "FLR": {
+    "status": "halal",
+    "confidence score": 0.95,
+    "reason": "Flare is a layer-1 blockchain designed to provide decentralized data interoperability, which functions as a neutral utility infrastructure."
+  },
+  "ARKM": {
+    "status": "halal",
+    "confidence score": 0.95,
+    "reason": "Arkham functions as an on-chain data analytics and intelligence platform, which provides utility through information services rather than prohibited financial activities."
+  },
+  "TON": {
+    "status": "halal",
+    "confidence score": 0.85,
+    "reason": "TON is a layer-1 blockchain designed for utility, decentralized applications, and payments, which does not inherently involve interest, gambling, or prohibited derivatives."
+  },
+  "BAL": {
+    "status": "halal",
+    "confidence score": 0.85,
+    "reason": "Balancer is a decentralized automated market maker (AMM) protocol that facilitates non-custodial token swaps and liquidity provision, which functions primarily as a decentralized exchange utility."
+  },
+  "OMNI": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "Omni Network is a Layer 1 blockchain designed to provide interoperability between Ethereum rollups, serving as a functional utility infrastructure rather than a speculative or prohibited financial instrument."
+  },
+  "LIGHTER": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "Lighter is a decentralized exchange protocol focused on spot trading, which does not inherently involve interest, leverage, or gambling mechanisms."
+  },
+  "BIO": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "Bio Protocol operates as a decentralized autonomous organization (DAO) focused on funding and accelerating scientific research in longevity and biotechnology, which aligns with productive economic activity."
   }
 }
