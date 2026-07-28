@@ -313,5 +313,100 @@
     "status": "halal",
     "confidence score": 0.9,
     "reason": "Bio Protocol operates as a decentralized autonomous organization (DAO) focused on funding and accelerating scientific research in longevity and biotechnology, which aligns with productive economic activity."
+  },
+  "ESP": {
+    "status": "unclear",
+    "confidence score": 0.5,
+    "reason": "There are multiple projects named Espresso in the cryptocurrency space, making it impossible to identify a primary utility without a specific whitepaper or official website reference."
+  },
+  "KAIO": {
+    "status": "unclear",
+    "confidence score": 0.5,
+    "reason": "There is insufficient public information regarding the specific utility and underlying business model of the Kaio project to confirm its compliance status."
+  },
+  "EUL": {
+    "status": "haram",
+    "confidence score": 0.95,
+    "reason": "Euler Finance is primarily a decentralized lending and borrowing protocol that relies on interest-based mechanisms, which is contrary to Islamic finance principles regarding Riba."
+  },
+  "DIA": {
+    "status": "halal",
+    "confidence score": 0.95,
+    "reason": "DIA is a cross-chain oracle platform providing data feeds for smart contracts, which serves as legitimate infrastructure for decentralized finance applications."
+  },
+  "TROLL": {
+    "status": "haram",
+    "confidence score": 1,
+    "reason": "The project is categorized as a meme coin, which falls under the exclusionary criteria provided."
+  },
+  "SAFE": {
+    "status": "halal",
+    "confidence score": 0.95,
+    "reason": "Safe is a decentralized governance and asset management protocol that facilitates self-custody and secure asset storage, which aligns with Islamic financial principles of ownership and security."
+  },
+  "THQ": {
+    "status": "halal",
+    "confidence score": 0.85,
+    "reason": "Theoriq functions as an AI agent protocol focused on interoperability and decentralized automation rather than lending, gambling, or interest-based finance."
+  },
+  "KAITO": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "Kaito functions as an AI-powered information aggregator for the crypto market, which does not involve prohibited financial activities like interest, gambling, or speculation."
+  },
+  "SUP": {
+    "status": "halal",
+    "confidence score": 0.95,
+    "reason": "Superfluid is a protocol for programmable, real-time cash flows and token streaming, which serves as a utility for asset transfers rather than interest-bearing lending or gambling."
+  },
+  "PRL": {
+    "status": "unclear",
+    "confidence score": 0.5,
+    "reason": "There is insufficient public information regarding the specific utility or whitepaper of a project named 'Perle' to determine if its primary purpose falls into restricted categories."
+  },
+  "COTI": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "COTI is primarily an enterprise-grade fintech platform focused on payment infrastructure, privacy, and decentralized finance technology rather than prohibited activities like interest-based lending or gambling."
+  },
+  "PROS": {
+    "status": "halal",
+    "confidence score": 95,
+    "reason": "Pharos functions as a decentralized infrastructure protocol for network telemetry and data validation, which does not involve interest, gambling, or prohibited derivative speculation."
+  },
+  "GWEI": {
+    "status": "halal",
+    "confidence score": 0.95,
+    "reason": "The project serves as a utility token for transaction fees on the Ethereum network and does not involve interest, gambling, or prohibited derivative products."
+  },
+  "KMNO": {
+    "status": "haram",
+    "confidence score": 0.9,
+    "reason": "Kamino's primary utility is centered around automated liquidity management, yield generation, and lending protocols which rely on interest-based mechanisms."
+  },
+  "SWELL": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "SWELL functions as a governance and utility token for a decentralized liquidity protocol focused on liquid staking, which aligns with profit-sharing principles rather than interest-based lending."
+  },
+  "ACH": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "Alchemy Pay acts as a payment gateway facilitating fiat-to-crypto transactions and merchant settlements, which functions as a utility for digital commerce rather than interest, gambling, or speculation."
+  },
+  "FLOW": {
+    "status": "halal",
+    "confidence score": 0.95,
+    "reason": "Flow is a layer-one blockchain protocol designed for decentralized applications, NFTs, and gaming utility rather than lending or speculative derivatives."
+  },
+  "PROMPT": {
+    "status": "unclear",
+    "confidence score": 0,
+    "reason": "There is insufficient information regarding the specific utility or technical implementation of the Wayfinder (PROMPT) project to make a definitive assessment."
+  },
+  "INDEX": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "The project primarily focuses on decentralized asset management through index products, which represent ownership in underlying tokens rather than interest-bearing or speculative derivative products."
   }
 }

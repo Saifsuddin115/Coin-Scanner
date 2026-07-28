@@ -66,7 +66,7 @@ Respond ONLY as valid JSON.
 
     return result
 
-BLACKLIST = {"PIRATE"}
+BLACKLIST = {"PIRATE", "THQ"}
 
 app = Flask(__name__)
 
