@@ -652,7 +652,7 @@ function previousMonth() {
         currentMonth = 11;
         currentYear--;
     }
-
+    migrateAllDays()
     renderCalendar();
 }
 
@@ -699,51 +699,31 @@ function saveDay(day, data) {
 }
 
 // ── Monthly P&L ───────────────────────────────────────────
-
+// Monthly total — compound each day's already-compounded pnl
 function updateMonthlyPnl() {
-
-    let total = 0;
+    let multiplier = 1;
     let hasTrades = false;
 
     for (let d = 1; d <= daysInCurrentMonth(); d++) {
-
         const data = loadDay(d);
-
-        if (!data) continue;
-
-        if (data.pnl !== null && data.pnl !== undefined) {
-
-            total += data.pnl;
-            hasTrades = true;
-
-        }
-
+        if (!data || data.pnl === null || data.pnl === undefined) continue;
+        multiplier *= (1 + data.pnl / 100);
+        hasTrades = true;
     }
 
     const el = document.getElementById("monthlyPnl");
+    if (!hasTrades) { el.innerHTML = ""; return; }
 
-    if (!hasTrades) {
-
-        el.innerHTML = "";
-        return;
-
-    }
-
+    const total = (multiplier - 1) * 100;
     const sign = total > 0 ? "+" : "";
-
     el.innerHTML = `
-        <span class="monthly-label">
-            Monthly P&L
-        </span>
-
-        <span class="monthly-value"
-            style="color:${total >= 0 ? "#2c77da" : "#4a4a4a"}">
-
+        <span class="monthly-label">Monthly P&L</span>
+        <span class="monthly-value" style="color:${total >= 0 ? "#2c77da" : "#4a4a4a"}">
             ${sign}${total.toFixed(2)}%
-
         </span>
     `;
 }
+
 
 // ── Apply saved data to a day ─────────────────────────────
 
@@ -904,25 +884,46 @@ function addTradeRow(value = '') {
     updateAddButton();
 }
 
+// Daily total while editing a day
 function recalculateTotal() {
     const inputs = document.querySelectorAll('.trade-row input');
-    let total = 0, count = 0;
+    let multiplier = 1, count = 0;
 
     inputs.forEach(input => {
         const val = parseFloat(input.value);
-        if (!isNaN(val)) { total += val; count++; }
+        if (!isNaN(val)) {
+            multiplier *= (1 + val / 100);
+            count++;
+        }
     });
 
     const el = document.getElementById('dailyTotal');
     if (count === 0) { el.textContent = ''; return; }
 
+    const total = (multiplier - 1) * 100;
     const sign = total > 0 ? '+' : '';
     el.textContent = `Daily P&L: ${sign}${total.toFixed(2)}%`;
-  el.style.color = total > 0 ? 'var(--valid)' : total < 0 ? 'var(--invalid)' : 'var(--gold)';
+    el.style.color = total > 0 ? 'var(--valid)' : total < 0 ? 'var(--invalid)' : 'var(--gold)';
 }
 
 // ── Build calendar ────────────────────────────────────────
 // ── Calendar ──────────────────────────────────────────────
+
+function migrateAllDays() {
+    for (const key in localStorage) {
+        if (!key.startsWith('journal-')) continue;
+        try {
+            const data = JSON.parse(localStorage.getItem(key));
+            if (data.trades && data.trades.length) {
+                let multiplier = 1;
+                data.trades.forEach(t => multiplier *= (1 + t / 100));
+                data.pnl = parseFloat(((multiplier - 1) * 100).toFixed(2));
+                localStorage.setItem(key, JSON.stringify(data));
+            }
+        } catch (e) { /* skip malformed entries */ }
+    }
+}
+
 
 let activeDay = null;
 
@@ -1014,16 +1015,21 @@ document.getElementById("addTradeRow").addEventListener("click", () => {
 
 document.getElementById("saveDay").addEventListener("click", () => {
 
-    const inputs = document.querySelectorAll(".trade-row input");
+// Inside the saveDay click handler — replace the total calculation
+const inputs = document.querySelectorAll(".trade-row input");
+const trades = [];
+let multiplier = 1;
 
-    const trades = [];
+inputs.forEach(input => {
+    const val = parseFloat(input.value);
+    if (!isNaN(val)) {
+        trades.push(val);
+        multiplier *= (1 + val / 100);
+    }
+});
 
-    inputs.forEach(input => {
-        const val = parseFloat(input.value);
-        if (!isNaN(val)) trades.push(val);
-    });
-
-    const total = trades.reduce((a,b)=>a+b,0);
+const total = (multiplier - 1) * 100;
+// ...pnl: trades.length ? parseFloat(total.toFixed(2)) : null
 
     const notes =
         document.getElementById("inputNotes").value;

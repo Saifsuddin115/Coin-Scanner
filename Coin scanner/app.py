@@ -1,26 +1,39 @@
 from dotenv import load_dotenv
 load_dotenv()
-import google.generativeai as genai
+from google import genai
 import os
 import json
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-3.1-flash-lite")
-
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+MODEL_NAME = "gemini-3.1-flash-lite"
 
 from flask import Flask, render_template
 import requests
 
 
 CACHE_FILE = "halal_cache.json"
+BLACKLIST = {"PIRATE", "THQ"}
+
 
 def load_cache():
-    with open(CACHE_FILE, "r") as f:
-        return json.load(f)
+    try:
+        with open(CACHE_FILE, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
 
 def save_cache(cache):
     with open(CACHE_FILE, "w") as f:
         json.dump(cache, f, indent=2)
+
+
+def safe_float(val):
+    try:
+        return float(val)
+    except (TypeError, ValueError):
+        return None
+
 
 def check_halal(symbol, name):
     cache = load_cache()
@@ -44,7 +57,7 @@ A project should only be "haram" if its primary utility revolves around:
 - interest or lending
 - perpetual futures or leveraged derivatives
 - gambling or betting
--meme coin
+- meme coin
 
 Do NOT classify a project as haram simply because it can be traded.
 
@@ -57,16 +70,35 @@ Respond ONLY as valid JSON.
 }}
 """
 
-    response = model.generate_content(prompt)
-    result = json.loads(response.text)
+    try:
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=prompt,
+        )
+        text = response.text.strip()
 
-   
+        # Gemini sometimes wraps JSON in markdown fences ```json ... ```
+        if text.startswith("```"):
+            text = text.strip("`")
+            if text.startswith("json"):
+                text = text[4:]
+            text = text.strip()
+
+        result = json.loads(text)
+
+    except Exception as e:
+        print(f"Halal check failed for {symbol}: {e}")
+        result = {
+            "status": "unclear",
+            "confidence score": 0,
+            "reason": "Screening unavailable right now."
+        }
+
     cache[symbol] = result
     save_cache(cache)
 
     return result
 
-BLACKLIST = {"PIRATE", "THQ"}
 
 app = Flask(__name__)
 
@@ -75,14 +107,15 @@ app = Flask(__name__)
 def home():
     return render_template("index.html")
 
+
 @app.route("/rules")
 def rules():
     return render_template("Rules.html")
 
+
 @app.route("/calendar")
 def calendar():
     return render_template("Calendar.html")
-
 
 
 @app.route("/api/gainers")
@@ -99,7 +132,7 @@ def gainers():
         and p["trading_disabled"] == False
         and p["is_disabled"] == False
         and p["base_currency_id"] not in BLACKLIST
-      
+        and safe_float(p.get("price_percentage_change_24h")) is not None
     ]
 
     sorted_products = sorted(
@@ -110,19 +143,19 @@ def gainers():
 
     top_15 = sorted_products[:15]
     cleaned = []
+
     for p in top_15:
-     symbol = p["base_currency_id"]
-     name = p["base_name"]
+        symbol = p["base_currency_id"]
+        name = p["base_name"]
 
-     cleaned.append({
-        "name": name,
-        "symbol": symbol,
-        "price": p["price"],
-        "change_24h": round(float(p["price_percentage_change_24h"]), 2),
-        "volume_24h": round(float(p["volume_24h"]), 2),
-        "halal_status": check_halal(symbol, name)
-    })
-
+        cleaned.append({
+            "name": name,
+            "symbol": symbol,
+            "price": p["price"],
+            "change_24h": round(float(p["price_percentage_change_24h"]), 2),
+            "volume_24h": round(safe_float(p.get("volume_24h")) or 0, 2),
+            "halal_status": check_halal(symbol, name)
+        })
 
     return cleaned
 

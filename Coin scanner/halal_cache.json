@@ -408,5 +408,55 @@
     "status": "halal",
     "confidence score": 0.9,
     "reason": "The project primarily focuses on decentralized asset management through index products, which represent ownership in underlying tokens rather than interest-bearing or speculative derivative products."
+  },
+  "META": {
+    "status": "unclear",
+    "confidence score": 0.5,
+    "reason": "The project name 'MetaDAO' is generic and lacks specific information regarding its primary utility, making it impossible to determine if its core function complies with Sharia principles."
+  },
+  "RE": {
+    "status": "unclear",
+    "confidence score": 0,
+    "reason": "The project 'RE' lacks sufficient public documentation or a defined utility to determine its compliance status."
+  },
+  "PLU": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "Pluton is a loyalty reward token for the Plutus platform, functioning as a utility token for cashback and merchant discounts rather than interest or gambling."
+  },
+  "RAVE": {
+    "status": "unclear",
+    "confidence score": 0.5,
+    "reason": "The project's primary utility is not clearly defined in public documentation, preventing a determination of whether its core function aligns with Sharia principles."
+  },
+  "SENT": {
+    "status": "halal",
+    "confidence score": 0.85,
+    "reason": "Sentient is an artificial intelligence platform focused on decentralized model development, which does not inherently involve interest, gambling, or prohibited financial derivatives."
+  },
+  "ELA": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "Elastos is a decentralized infrastructure project focused on building a secure, smart-web ecosystem with identity and data ownership, which does not inherently involve prohibited financial activities."
+  },
+  "UP": {
+    "status": "haram",
+    "confidence score": 0.9,
+    "reason": "Superform functions primarily as a cross-chain yield aggregator that facilitates automated lending and borrowing strategies to earn interest."
+  },
+  "BLEND": {
+    "status": "halal",
+    "confidence score": 0.95,
+    "reason": "Fluent (BLEND) is a decentralized bridge protocol focused on cross-chain interoperability and liquidity transfer, which does not involve interest-based lending, leverage, or gambling."
+  },
+  "DBR": {
+    "status": "halal",
+    "confidence score": 0.95,
+    "reason": "deBridge is a cross-chain interoperability protocol focused on token bridging and liquidity transfer, which does not involve interest, gambling, or prohibited derivative speculation as its primary utility."
+  },
+  "SHDW": {
+    "status": "unclear",
+    "confidence score": 0.5,
+    "reason": "The project lacks a clear, publicly defined primary utility, making it impossible to determine if its core function aligns with Sharia-compliant principles."
   }
 }
