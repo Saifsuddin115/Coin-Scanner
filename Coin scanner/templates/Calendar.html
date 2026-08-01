@@ -554,8 +554,39 @@ dialog#dayModal textarea:focus {
     color: var(--gold-bright);
     box-shadow: 0 0 10px rgba(185,163,108,0.35);
 }
+.trade-row-full {
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+.mini-label { font-size: 10px; color: var(--text-muted); margin-right: 6px; }
+.mini-rules { margin: 6px 0; }
+.mini-rules-btn {
+    width: auto; padding: 4px 10px; margin: 0 4px 0 0; font-size: 11px;
+}
+.mini-rules-btn.selected {
+    border-color: var(--gold); color: var(--gold-bright);
+}
+.mini-confluence-add { display: flex; gap: 4px; margin-top: 4px; }
+.mini-confluence-input {
+    flex: 1; font-size: 12px; padding: 6px; background: var(--bg);
+    border: 1px solid var(--surface-border); border-radius: 6px; color: var(--text);
+}
+.mini-confluence-btn { width: auto; padding: 6px 10px; margin: 0; font-size: 11px; }
 
-
+.mini-confluence-trigger {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    padding: 4px 0;
+}
+.mini-confluence-trigger:hover {
+    color: var(--gold-bright);
+    text-decoration: underline;
+}
 
 
 
@@ -716,24 +747,11 @@ dialog#dayModal textarea:focus {
 
     <div id="dailyTotal" style="font-size:15px; font-weight:bold; margin-bottom:16px; color:var(--gold);"></div>
 
-    <label style="font-size:12px; letter-spacing:1px; color:var(--text-muted); text-transform:uppercase;">
-    Followed Your Rules?
-</label>
-<div id="rulesToggle" style="display:flex; gap:8px; margin:8px 0 16px 0;">
-    <button type="button" class="rules-btn" data-val="yes" style="width:auto; padding:8px 20px; margin:0;">Yes</button>
-    <button type="button" class="rules-btn" data-val="no" style="width:auto; padding:8px 20px; margin:0;">No</button>
-</div>
 
- <label style="font-size:12px; letter-spacing:1px; color:var(--text-muted); text-transform:uppercase;">
-    Confluences
-</label>
-<div id="confluenceDisplay" style="margin-top: 8px; margin-bottom: 8px;"></div>
-<div style="display:flex; gap:6px; margin-bottom:16px;">
-    <input type="text" id="confluenceInput" placeholder="Add confluence..." 
-        style="flex:1; background:var(--bg); border:1px solid var(--surface-border); border-radius:8px; padding:8px 10px; color:var(--text); font-family:'Inter',sans-serif; font-size:13px;">
-    <button type="button" onclick="addConfluenceTag()" 
-        style="width:auto; padding:8px 14px; margin:0; font-size:12px;">+ Add</button>
-</div>
+
+
+ 
+
 
     <label style="font-size:12px; letter-spacing:1px; color:var(--text-muted); text-transform:uppercase;">
         Notes
@@ -952,71 +970,6 @@ function applyDayData(box, day) {
 
 }
 
-// ── Confluences ───────────────────────────────────────────
-function loadConfluencesIntoModal(savedConfluences) {
-   const isToday =
-    activeDay === today.getDate() &&
-    currentMonth === today.getMonth() &&
-    currentYear === today.getFullYear();
-
-    let confluences = [];
-
-    if (savedConfluences && savedConfluences.length > 0) {
-        confluences = savedConfluences;
-    } else if (isToday) {
-        confluences = JSON.parse(localStorage.getItem('lastTradeConfluences') || '[]');
-    }
-
-    renderConfluenceTags(confluences);
-}
-function renderConfluenceTags(confluences) {
-    const el = document.getElementById('confluenceDisplay');
-    el.innerHTML = '';
-
-    if (confluences.length === 0) {
-        const none = document.createElement('span');
-        none.style.color    = 'var(--text-muted)';
-        none.style.fontSize = '13px';
-        none.textContent    = 'None — add below';
-        el.appendChild(none);
-    }
-
-    confluences.forEach(name => {
-        const tag = document.createElement('span');
-        tag.classList.add('confluence-tag');
-        tag.innerHTML = `${name} <span class="tag-remove">✕</span>`;
-        tag.querySelector('.tag-remove').addEventListener('click', () => {
-            tag.remove();
-            // if nothing left, show the "None" message
-            if (document.querySelectorAll('#confluenceDisplay .confluence-tag').length === 0) {
-                renderConfluenceTags([]);
-            }
-        });
-        el.appendChild(tag);
-    });
-}
-
-function addConfluenceTag() {
-    const input = document.getElementById('confluenceInput');
-    const val   = input.value.trim();
-    if (!val) return;
-
-    // remove the "None" placeholder if it's there
-    const none = document.querySelector('#confluenceDisplay span:not(.confluence-tag)');
-    if (none) none.remove();
-
-    const tag = document.createElement('span');
-    tag.classList.add('confluence-tag');
-    tag.innerHTML = `${val} <span class="tag-remove">✕</span>`;
-    tag.querySelector('.tag-remove').addEventListener('click', () => {
-        tag.remove();
-        if (document.querySelectorAll('#confluenceDisplay .confluence-tag').length === 0) {
-            renderConfluenceTags([]);
-        }
-    });
-    document.getElementById('confluenceDisplay').appendChild(tag);
-    input.value = '';
-}
 
 
 // ── Trade rows ────────────────────────────────────────────
@@ -1024,43 +977,108 @@ const MAX_TRADES = 3;
 
 function updateAddButton() {
     const btn   = document.getElementById('addTradeRow');
-    const count = document.querySelectorAll('.trade-row').length;
+  const count = document.querySelectorAll('.trade-row-full').length;
     btn.style.opacity       = count >= MAX_TRADES ? '0.4' : '1';
     btn.style.pointerEvents = count >= MAX_TRADES ? 'none' : 'auto';
 }
 
-function addTradeRow(value = '') {
-    if (document.querySelectorAll('.trade-row').length >= MAX_TRADES) return;
+function addTradeRow(trade = {}) {
+    if (document.querySelectorAll('.trade-row-full').length >= MAX_TRADES) return;
 
-    const row = document.createElement('div');
-    row.classList.add('trade-row');
+    const pnl = trade.pnl ?? '';
+    const followedRules = trade.followedRules ?? null;
+    const confluences = trade.confluences || [];
 
-    const input = document.createElement('input');
-    input.type        = 'number';
-    input.step        = '0.1';
-    input.placeholder = 'e.g. 4.5 or -2.3';
-    input.value       = value;
-    input.addEventListener('input', recalculateTotal);
+    const wrap = document.createElement('div');
+    wrap.classList.add('trade-row-full');
 
-    const removeBtn = document.createElement('button');
-    removeBtn.type        = 'button';
-    removeBtn.textContent = '✕';
-    removeBtn.classList.add('remove-row');
-    removeBtn.addEventListener('click', () => {
-        row.remove();
+    wrap.innerHTML = `
+        <div class="trade-row">
+            <input type="number" step="0.1" class="trade-pnl" placeholder="e.g. 4.5 or -2.3" value="${pnl}">
+            <button type="button" class="remove-row">✕</button>
+        </div>
+        <div class="mini-rules">
+            <span class="mini-label">Followed rules?</span>
+            <button type="button" class="mini-rules-btn" data-val="yes">Yes</button>
+            <button type="button" class="mini-rules-btn" data-val="no">No</button>
+        </div>
+      <div class="mini-confluences">
+    <div class="mini-confluence-display"></div>
+    <span class="mini-confluence-trigger">+ Add Confluence</span>
+    <div class="mini-confluence-add" style="display:none;">
+        <input type="text" class="mini-confluence-input" placeholder="Add confluence...">
+        <button type="button" class="mini-confluence-btn">+</button>
+    </div>
+</div>
+    `;
+
+    // pnl total recalculation
+wrap.querySelector('.trade-pnl').addEventListener('input', recalculateTotal);
+
+    // remove row
+    wrap.querySelector('.remove-row').addEventListener('click', () => {
+        wrap.remove();
         recalculateTotal();
         updateAddButton();
     });
 
-    row.appendChild(input);
-    row.appendChild(removeBtn);
-    document.getElementById('tradeRows').appendChild(row);
+    // rules toggle (scoped to this row only)
+    const rulesBtns = wrap.querySelectorAll('.mini-rules-btn');
+    function setRulesUI(val) {
+        rulesBtns.forEach(b => b.classList.toggle('selected', b.dataset.val === val));
+        wrap.dataset.followedRules = val === null ? '' : (val === 'yes');
+    }
+    rulesBtns.forEach(btn => {
+        btn.addEventListener('click', () => setRulesUI(btn.dataset.val));
+    });
+    setRulesUI(followedRules === true ? 'yes' : followedRules === false ? 'no' : null);
+
+    // confluences (scoped to this row only)
+    const display = wrap.querySelector('.mini-confluence-display');
+    function renderMiniTags(tags) {
+        display.innerHTML = '';
+        tags.forEach(name => {
+            const tag = document.createElement('span');
+            tag.classList.add('confluence-tag');
+            tag.innerHTML = `${name} <span class="tag-remove">✕</span>`;
+            tag.querySelector('.tag-remove').addEventListener('click', () => {
+                const i = wrap._confluences.indexOf(name);
+                if (i > -1) wrap._confluences.splice(i, 1);
+                renderMiniTags(wrap._confluences);
+            });
+            display.appendChild(tag);
+        });
+    }
+    wrap._confluences = [...confluences];
+    renderMiniTags(wrap._confluences);
+
+    const trigger = wrap.querySelector('.mini-confluence-trigger');
+    const addBox = wrap.querySelector('.mini-confluence-add');
+    const confluenceInput = wrap.querySelector('.mini-confluence-input');
+
+    trigger.addEventListener('click', () => {
+        addBox.style.display = 'flex';
+        trigger.style.display = 'none';
+        confluenceInput.focus();
+    });
+
+    wrap.querySelector('.mini-confluence-btn').addEventListener('click', () => {
+        const val = confluenceInput.value.trim();
+        if (!val) return;
+        wrap._confluences.push(val);
+        renderMiniTags(wrap._confluences);
+        confluenceInput.value = '';
+        addBox.style.display = 'none';
+        trigger.style.display = 'inline-block';
+    });
+
+    document.getElementById('tradeRows').appendChild(wrap);
     updateAddButton();
 }
 
 // Daily total while editing a day
 function recalculateTotal() {
-    const inputs = document.querySelectorAll('.trade-row input');
+  const inputs = document.querySelectorAll('.trade-pnl'); // was '.trade-row input'
     let multiplier = 1, count = 0;
 
     inputs.forEach(input => {
@@ -1083,13 +1101,23 @@ function recalculateTotal() {
 // ── Build calendar ────────────────────────────────────────
 // ── Calendar ──────────────────────────────────────────────
 function migrateAllDays() {
+
+
     for (const key in localStorage) {
         if (!key.startsWith('journal-')) continue;
         try {
             const data = JSON.parse(localStorage.getItem(key));
+            if (data.trades && data.trades.length && typeof data.trades[0] === 'number') {
+    data.trades = data.trades.map((val, i) => ({
+        pnl: val,
+        followedRules: i === 0 ? (data.followedRules ?? null) : null,
+        confluences: i === 0 ? (data.confluences || []) : []
+    }));
+    localStorage.setItem(key, JSON.stringify(data));
+}
             if (data.trades && data.trades.length) {
                 let multiplier = 1;
-                data.trades.forEach(t => multiplier *= (1 + t / 100));
+                data.trades.forEach(t => multiplier *= (1 + t.pnl / 100));
                 data.pnl = parseFloat(((multiplier - 1) * 100).toFixed(2));
                 localStorage.setItem(key, JSON.stringify(data));
             }
@@ -1097,50 +1125,33 @@ function migrateAllDays() {
     }
 }
 
-let selectedFollowedRules = null;
-
-function updateRulesToggleUI() {
-    document.querySelectorAll('.rules-btn').forEach(btn => {
-        const val = btn.dataset.val === 'yes';
-        btn.classList.toggle('selected', selectedFollowedRules === val);
-    });
-}
-
-document.querySelectorAll('.rules-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        selectedFollowedRules = btn.dataset.val === 'yes';
-        updateRulesToggleUI();
-    });
-});
-
-function getAllLoggedDaysSorted() {
-    const entries = [];
+function getAllTradesSorted() {
+    const dayEntries = [];
     for (const key in localStorage) {
         const m = key.match(/^journal-(\d+)-(\d+)-(\d+)$/);
         if (!m) continue;
         const [, y, mo, d] = m.map(Number);
         let data;
         try { data = JSON.parse(localStorage.getItem(key)); } catch (e) { continue; }
-        if (data.pnl === null || data.pnl === undefined) continue;
-        entries.push({ date: new Date(y, mo, d), data });
+        if (!data.trades?.length) continue;
+        dayEntries.push({ date: new Date(y, mo, d), trades: data.trades });
     }
-    entries.sort((a, b) => a.date - b.date);
-    return entries;
+    dayEntries.sort((a, b) => a.date - b.date);
+    return dayEntries.flatMap(e => e.trades);
 }
 
 function computeStreaks() {
-    const days = getAllLoggedDaysSorted();
+    const trades = getAllTradesSorted();
     let winStreak = 0, ruleStreak = 0;
     let winBest = parseInt(localStorage.getItem('winStreakBest') || '4', 10);
     let ruleBest = parseInt(localStorage.getItem('ruleStreakBest') || '0', 10);
 
-    days.forEach(({ data }) => {
-        winStreak = data.pnl > 0 ? winStreak + 1 : 0;
+    trades.forEach(t => {
+        winStreak = t.pnl > 0 ? winStreak + 1 : 0;
         if (winStreak > winBest) winBest = winStreak;
 
-        if (data.followedRules === true) ruleStreak += 1;
-        else if (data.followedRules === false) ruleStreak = 0;
-        // undefined/null (old entries, or days pre-feature) leave streak untouched
+        if (t.followedRules === true) ruleStreak += 1;
+        else if (t.followedRules === false) ruleStreak = 0;
 
         if (ruleStreak > ruleBest) ruleBest = ruleStreak;
     });
@@ -1214,27 +1225,14 @@ function openDay(day) {
     document.getElementById("inputNotes").value =
         data.notes ?? "";
 
-    document.getElementById("dailyTotal").textContent = "";
-
-    loadConfluencesIntoModal(data.confluences || []);
-
-    selectedFollowedRules = data.followedRules ?? null;
-updateRulesToggleUI();
-
     const rows = document.getElementById("tradeRows");
 
     rows.innerHTML = "";
-
     if (data.trades?.length) {
-
         data.trades.forEach(addTradeRow);
-
         recalculateTotal();
-
     } else {
-
         addTradeRow();
-
     }
 
     updateAddButton();
@@ -1253,48 +1251,33 @@ document.getElementById("addTradeRow").addEventListener("click", () => {
 document.getElementById("saveDay").addEventListener("click", () => {
 
 // Inside the saveDay click handler — replace the total calculation
-const inputs = document.querySelectorAll(".trade-row input");
+const rows = document.querySelectorAll('.trade-row-full');
 const trades = [];
 let multiplier = 1;
 
-inputs.forEach(input => {
-    const val = parseFloat(input.value);
-    if (!isNaN(val)) {
-        trades.push(val);
-        multiplier *= (1 + val / 100);
-    }
+rows.forEach(wrap => {
+    const val = parseFloat(wrap.querySelector('.trade-pnl').value);
+    if (isNaN(val)) return;
+    multiplier *= (1 + val / 100);
+    trades.push({
+        pnl: val,
+        followedRules: wrap.dataset.followedRules === '' ? null : wrap.dataset.followedRules === 'true',
+        confluences: [...wrap._confluences]
+    });
 });
 
 const total = (multiplier - 1) * 100;
-// ...pnl: trades.length ? parseFloat(total.toFixed(2)) : null
+const notes = document.getElementById("inputNotes").value;
 
-    const notes =
-        document.getElementById("inputNotes").value;
-
-    const tags =
-        document.querySelectorAll("#confluenceDisplay .confluence-tag");
-
-    const confluences =
-        Array.from(tags).map(tag =>
-            tag.childNodes[0].textContent.trim()
-        );
-
-    saveDay(activeDay,{
-        trades,
-        pnl: trades.length ? parseFloat(total.toFixed(2)) : null,
-        notes,
-        confluences,
-        followedRules: selectedFollowedRules
-    });
-
-    renderCalendar();
-renderStreaks();
-    modal.close();
-
+saveDay(activeDay, {
+    trades,
+    pnl: trades.length ? parseFloat(total.toFixed(2)) : null,
+    notes
 });
 
-document.getElementById("closeDay").addEventListener("click", () => {
-    modal.close();
+renderCalendar();
+renderStreaks();
+modal.close();
 });
 
 </script>
