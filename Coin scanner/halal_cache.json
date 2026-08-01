@@ -458,5 +458,60 @@
     "status": "unclear",
     "confidence score": 0.5,
     "reason": "The project lacks a clear, publicly defined primary utility, making it impossible to determine if its core function aligns with Sharia-compliant principles."
+  },
+  "WMTX": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "The project serves as a decentralized utility token for a telecommunications network, facilitating connectivity rather than speculation or interest-based financial services."
+  },
+  "GODS": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "Gods Unchained is a play-to-earn digital collectible card game where the primary utility is gaming and NFT ownership, which does not inherently involve interest, gambling, or prohibited derivatives."
+  },
+  "DRV": {
+    "status": "haram",
+    "confidence score": 0.95,
+    "reason": "The project's primary utility is centered on decentralized perpetual futures and leveraged derivatives trading."
+  },
+  "GRVT": {
+    "status": "halal",
+    "confidence score": 0.85,
+    "reason": "GRVT is a hybrid exchange platform focusing on order book execution and self-custody rather than interest-based lending or gambling."
+  },
+  "BIRB": {
+    "status": "haram",
+    "confidence score": 0.95,
+    "reason": "The project is classified as a meme coin, which falls under the specified criteria for haram projects."
+  },
+  "FIS": {
+    "status": "halal",
+    "confidence score": 0.85,
+    "reason": "StaFi operates as a liquid staking protocol for proof-of-stake networks, which functions as a profit-sharing utility rather than interest-based lending or prohibited speculation."
+  },
+  "CLANKER": {
+    "status": "haram",
+    "confidence score": 0.95,
+    "reason": "The project is explicitly marketed and functioning as a meme coin, which falls under your defined criteria for haram classification."
+  },
+  "HOME": {
+    "status": "unclear",
+    "confidence score": 0,
+    "reason": "The provided information lacks a description of the project's primary utility, making it impossible to determine compliance."
+  },
+  "TURBO": {
+    "status": "haram",
+    "confidence score": 10,
+    "reason": "Turbo is classified as a meme coin, which falls under the project's predefined criteria for a haram classification."
+  },
+  "FUN1": {
+    "status": "haram",
+    "confidence score": 0.95,
+    "reason": "The project is explicitly categorized as a meme coin, which falls under the exclusionary criteria provided."
+  },
+  "VOXEL": {
+    "status": "halal",
+    "confidence score": 0.9,
+    "reason": "Voxies is a tactical RPG gaming ecosystem where the token is used for in-game utility, character customization, and marketplace transactions rather than speculative gambling or interest-based finance."
   }
 }
