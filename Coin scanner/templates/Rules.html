@@ -618,13 +618,13 @@ You KNOW if you are lying to yourself, use confluences continuation does not cou
 <div id="verdictBearish" style="display:none">⚠ SETUP INVALID<br><br>Bearish trend detected;</div>
 
 <button id="verdictActionBtn" onclick="location.reload()">
-        New Trade
+        Continue
         <svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
   <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
   <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
 </svg>
     </button>
-    </button>
+   
 </div>
 
 <br>
@@ -877,7 +877,7 @@ function submitForm() {
         document.getElementById('verdictInvalid').style.display = 'block';
         document.getElementById('verdictOverlay').style.display = 'flex';
         disableCheckboxes("confluences");
-          showContinueToCoinbase();
+    
     }
 }
 
@@ -896,6 +896,7 @@ document.getElementById('modalYes').addEventListener('click', function() {
     document.getElementById('verdictValid').style.display = 'block';
     document.getElementById('verdictOverlay').style.display = 'flex';
     disableCheckboxes("confluences");
+    showContinueToCoinbase();
 });
 
 document.getElementById('modalNo').addEventListener('click', function() {
