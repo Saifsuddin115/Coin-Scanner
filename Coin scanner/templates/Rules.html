@@ -184,7 +184,7 @@ button:active {
     line-height: 1.6;
 }
 
-#verdictFomo, #verdictLimit, #verdictInvalid {
+#verdictFomo, #verdictLimit, #verdictInvalid, #verdictBearish {
     color: #c97a6c;
     background: var(--surface);
     border: 1px solid var(--invalid);
@@ -426,34 +426,28 @@ dialog#confirmModal h2 {
 <div id="question1">
 
 
-
-<h2>TREND</h2>
-
-<p>
-Are we making higher highs or lower lows?
-</p>
-
-<button type="button" onclick="checktrend('Yes')">
-Higher Highs
-<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <h2>Setup</h2>
+ What is the trend on higher timeframe of the setup you are choosing?
+<p> 
+<button type="button" onclick="checksetup('Bull')">Bullish (Higher highs) <svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
   <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
   <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
-</svg>
-</button>
-
-<button type="button" onclick="checktrend('No')">
-Lower Lows
-<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+</svg></button>
+<button type="button" onclick="checksetup('Consolidation')">Consolidation <svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
   <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
   <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
-</svg>
-</button>
-<p id="result"></p>
+</svg></button>
+<button type="button" onclick="checksetup('Bearish')">Bearish (Lower lows) <svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L10<PASSWORD>" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<p id="Setup"></p>
 <button type="button" id="next1" class="next-btn" style="display:none" onclick="goToNext('question1', 'question2')">Next<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
   <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
   <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
 </svg></button>
 </div>
+
 
 
 <div id="question2" style="display:none">
@@ -475,29 +469,8 @@ Is there a high TF DOJI, indecision, or a bearish engulfing?
 </svg></button>
 </div>
 
+
 <div id="question3" style="display:none">
-    <h4>Setup</h4>
- Is there a better setup with a stronger trend RIGHT NOW or any that is FORMING?
-<p> 
-<button type="button" onclick="checksetup('Yes')">Yes<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
-  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
-  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
-</svg></button>
-<button type="button" onclick="checksetup('No')">No<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
-  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
-  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
-</svg></button>
-<p id="Setup"></p>
-<button type="button" id="next3" class="next-btn" style="display:none" onclick="goToNext('question3', 'question4')">Next<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
-  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
-  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
-</svg></button>
-</div>
-
-
-
-
-<div id="question4" style="display:none">
     <h5>FOMO</h5>
 You KNOW if you are lying to yourself, use confluences continuation does not count nor does break of high. Is this a FOMO trade?
 <p>
@@ -587,6 +560,10 @@ You KNOW if you are lying to yourself, use confluences continuation does not cou
     <span class="confluence-name"><input type="checkbox" id="5MOB" value="5"> 5M OB</span>
     <span class="confluence-weight">5.0</span>
   </label>
+   <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="5MFVG" value="4"> 5M FVG</span>
+    <span class="confluence-weight">4.0</span>
+  </label>
   <label class="confluence-row">
     <span class="confluence-name"><input type="checkbox" id="Hourly Liq sweep" value="4"> Hourly Liq sweep</span>
     <span class="confluence-weight">4.0</span>
@@ -595,6 +572,7 @@ You KNOW if you are lying to yourself, use confluences continuation does not cou
     <span class="confluence-name"><input type="checkbox" id="15M Liq sweep" value="4"> 15M Liq sweep</span>
     <span class="confluence-weight">4.0</span>
   </label>
+  
 </div>
 <p>
 <button type="button" onclick="submitForm()">Submit<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -637,6 +615,7 @@ You KNOW if you are lying to yourself, use confluences continuation does not cou
 <div id="verdictFomo" style="display:none">⚠ SETUP INVALID<br><br>FOMO detected;</div>
 <div id="verdictLimit" style="display:none">⚠  SETUP INVALID<br><br>Daily trade limit reached;</div>
 <div id="verdictInvalid" style="display:none">⚠ SETUP INVALID<br><br>Not enough confluences;</div>
+<div id="verdictBearish" style="display:none">⚠ SETUP INVALID<br><br>Bearish trend detected;</div>
 
     <button onclick="location.reload()">
         New Trade
@@ -737,6 +716,15 @@ const cardDelays = {
    
 };
 
+const NEXT_DELAY = 6000; // time to actually read what you wrote before Next appears
+
+function showNextButton(nextBtnId, containerId, delay = NEXT_DELAY) {
+    setTimeout(() => {
+        document.getElementById(nextBtnId).style.display = 'block';
+        disableButtons(containerId);
+    }, delay);
+}
+
 function delayButtons(containerId, ms) {
     if (ms === undefined) ms = cardDelays[containerId] ?? 1000; // default to 1s if not specified
 
@@ -786,42 +774,37 @@ function goToNext(currentId, nextId, onSwap) {
 
 
 //Starting off our choices
-
-function checktrend(choice) {
-    if (choice === 'Yes') {
-        document.getElementById('result').innerHTML = 'Great to take a trade off of it, aim for the next tp if daily looks strong, otherwise aim for the body of the candle at high.'
-       
-revealText(document.getElementById('result'));
-    } else {
-        
-        document.getElementById('result').innerHTML = 'Target HAS to be at the closest lower wick or at the body of the next candle after the closest high.';
-revealText(document.getElementById('result'));
+function checksetup(choice) {
+    if (choice === 'Bull') {
+        document.getElementById('Setup').innerHTML = 'Bullish trend detected. Ideal conditions — but a higher-high on your entry TF while the higher TF is stalling is still a mismatch, not a green light. Confirm the higher TF is actually continuing before you call this clean.';
+        revealText(document.getElementById('Setup'));
+        showNextButton('next1', 'question1');
+    } 
+    else if (choice === 'Consolidation') {
+        document.getElementById('Setup').innerHTML = 'Range-bound. Wait for a clean breakout with follow-through, or target the edge of the range on a retest. Don\'t chase entries in the middle of the range.';
+        revealText(document.getElementById('Setup'));
+        showNextButton('next1', 'question1');
     }
-    document.getElementById('next1').style.display = 'block';
-      disableButtons("question1")
-      document.getElementById('resetButton').style.display= 'block';
+    else if (choice === 'Bearish') {
+        document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
+        document.getElementById('verdictBearish').style.display = 'block';
+        document.getElementById('verdictOverlay').style.display = 'flex';
+        revealText(document.getElementById('Setup'));
+        showNextButton('next1', 'question1');
+    }
 }
+
 function checkreversal(choice) {
     if (choice === 'Yes') {
-        document.getElementById('indecision').innerHTML = 'If its a daily find the area of confluences that are the lowest, 4hr dojis dont trade, hourly dojis you can catch a retrace if its a bull trend otherwise skip as well. Bearish engulfing do not trade.';
+        document.getElementById('indecision').innerHTML = 'A doji alone means nothing — it only becomes information once the NEXT candle on that same TF closes. 4HR doji: wait for that next 4HR candle to close and confirm direction, no matter how good the lower TF looks. Hourly doji inside a clean bull trend, you can catch the retrace. Bearish engulfing — skip it, don\'t negotiate.';
         revealText(document.getElementById('indecision'));
     } else {
         document.getElementById('indecision').innerHTML = 'Proceed; A reminder to mark out everything you come across for mental and visual clarity.';
         revealText(document.getElementById('indecision'));
     }
-      document.getElementById('next2').style.display = 'block';
-     disableButtons("question2");
+      showNextButton('next2', 'question2');
 }
-function checksetup(choice) {
-    if (choice === 'Yes') {
-        location.reload();
-    } else {
-        document.getElementById('Setup').innerHTML = 'Proceed; A reminder to mark out everything you come across for mental and visual clarity, again make sure you look at trend and do not convince yourself to take any of these trades';
-        revealText(document.getElementById('Setup'));
-    }
-      document.getElementById('next3').style.display = 'block';
-      disableButtons("question3");
-}
+
 function FOMO(choices) {
     if (choices === 'FOMO') {
         document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
@@ -832,16 +815,16 @@ function FOMO(choices) {
         }, 300);
         return;
     } else {
-        goToNext('question4', 'tradeButtons', function() {
-            disableButtons("question4");
+        goToNext('question3', 'tradeButtons', function() {
+            disableButtons("question3");
         });
     }
 }
 
 function trades(numbers){
     if (numbers === '0' || numbers === '1' || numbers === '2') {
-        document.getElementById('hide').style.display = 'block';
-        disableButtons("tradeButtons");
+        showNextButton('hide', 'tradeButtons');
+        
     } else if (numbers === '3') {
         document.getElementById('verdictLimit').style.display = 'block';
         document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
