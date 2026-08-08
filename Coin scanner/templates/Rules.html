@@ -438,7 +438,7 @@ dialog#confirmModal h2 {
   <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
 </svg></button>
 <button type="button" onclick="checksetup('Bearish')">Bearish (Lower lows) <svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
-  <path d="M50,100 L10<PASSWORD>" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
   <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
 </svg></button>
 <p id="Setup"></p>
@@ -617,12 +617,13 @@ You KNOW if you are lying to yourself, use confluences continuation does not cou
 <div id="verdictInvalid" style="display:none">⚠ SETUP INVALID<br><br>Not enough confluences;</div>
 <div id="verdictBearish" style="display:none">⚠ SETUP INVALID<br><br>Bearish trend detected;</div>
 
-    <button onclick="location.reload()">
+<button id="verdictActionBtn" onclick="location.reload()">
         New Trade
         <svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
   <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
   <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
 </svg>
+    </button>
     </button>
 </div>
 
@@ -646,7 +647,24 @@ You KNOW if you are lying to yourself, use confluences continuation does not cou
 </html>
 
 <script>
-    
+    const TC_EXTENSION_ID = "iaobjcihlmogcnmejlkacaohoadmlejh"; // same ID as in your extension
+
+function showContinueToCoinbase() {
+    const btn = document.getElementById('verdictActionBtn');
+    btn.childNodes[0].nodeValue = 'Continue to Coinbase '; // leaves the svg border alone
+    btn.onclick = function() {
+        const params = new URLSearchParams(window.location.search);
+        const returnUrl = params.get('return') || 'https://www.coinbase.com/advanced-trade';
+
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+            chrome.runtime.sendMessage(TC_EXTENSION_ID, { action: 'unlock', returnUrl: returnUrl }, function(response) {
+                console.log('TC Gatekeeper:', response);
+            });
+        } else {
+            window.location.href = returnUrl;
+        }
+    };
+}
 
         document.addEventListener('DOMContentLoaded', () => {
     delayButtons('question1');
@@ -823,7 +841,7 @@ function FOMO(choices) {
 
 function trades(numbers){
     if (numbers === '0' || numbers === '1' || numbers === '2') {
-        showNextButton('hide', 'tradeButtons');
+        showNextButton('hide', 'tradeButtons', 200);
         
     } else if (numbers === '3') {
         document.getElementById('verdictLimit').style.display = 'block';
@@ -859,6 +877,7 @@ function submitForm() {
         document.getElementById('verdictInvalid').style.display = 'block';
         document.getElementById('verdictOverlay').style.display = 'flex';
         disableCheckboxes("confluences");
+          showContinueToCoinbase();
     }
 }
 
